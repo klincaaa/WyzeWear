@@ -1,5 +1,6 @@
 export type Product = {
   id: string;
+  slug: string;
   name: string;
   price: string;
   image: string;
@@ -10,6 +11,7 @@ export type Product = {
 export const products: Product[] = [
   {
     id: "hoodie-1",
+    slug: "stonewashed-studio-hoodie",
     name: "Stonewashed Studio Hoodie",
     price: "€140",
     category: "Hoodies",
@@ -20,6 +22,7 @@ export const products: Product[] = [
   },
   {
     id: "tracksuit-1",
+    slug: "technical-track-set",
     name: "Technical Track Set",
     price: "€220",
     category: "Tracksuits",
@@ -30,6 +33,7 @@ export const products: Product[] = [
   },
   {
     id: "tee-1",
+    slug: "everyday-logo-tee",
     name: "Everyday Logo Tee",
     price: "€75",
     category: "T-Shirts",
@@ -40,6 +44,7 @@ export const products: Product[] = [
   },
   {
     id: "cargo-1",
+    slug: "double-knee-cargo-pant",
     name: "Double Knee Cargo Pant",
     price: "€160",
     category: "Bottoms",
@@ -50,6 +55,7 @@ export const products: Product[] = [
   },
   {
     id: "cap-1",
+    slug: "tonal-six-panel-cap",
     name: "Tonal Six-Panel Cap",
     price: "€60",
     category: "Accessories",

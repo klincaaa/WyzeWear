@@ -1,10 +1,16 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { products } from "../data/products";
 import { ProductCard } from "./ProductCard";
+import type { Product } from "../data/products";
 
-export function ProductGrid() {
+export type ProductGridItem = Product;
+
+type Props = {
+  products: ProductGridItem[];
+};
+
+export function ProductGrid({ products }: Props) {
   return (
     <section className="bg-white py-12 sm:py-16">
       <div className="mx-auto flex max-w-6xl flex-col gap-8 px-4 sm:px-6 lg:px-8">
@@ -51,4 +57,5 @@ export function ProductGrid() {
     </section>
   );
 }
+
 

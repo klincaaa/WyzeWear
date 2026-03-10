@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { motion } from "framer-motion";
 
 export function Hero() {
@@ -43,12 +44,18 @@ export function Hero() {
           transition={{ duration: 0.6, ease: "easeOut", delay: 0.18 }}
           className="flex flex-col gap-3 text-xs font-medium uppercase tracking-[0.18em] sm:flex-row"
         >
-          <button className="inline-flex items-center justify-center rounded-full bg-white px-8 py-3 text-[11px] font-semibold tracking-[0.24em] text-black transition-transform duration-200 hover:-translate-y-0.5 hover:bg-zinc-100">
+          <Link
+            href="/products"
+            className="inline-flex items-center justify-center rounded-full bg-white px-8 py-3 text-[11px] font-semibold tracking-[0.24em] text-black transition-transform duration-200 hover:-translate-y-0.5 hover:bg-zinc-100"
+          >
             SHOP NOW
-          </button>
-          <button className="inline-flex items-center justify-center rounded-full border border-white/50 px-8 py-3 text-[11px] tracking-[0.24em] text-white transition-all duration-200 hover:-translate-y-0.5 hover:border-white hover:bg-white/5">
+          </Link>
+          <Link
+            href="/products"
+            className="inline-flex items-center justify-center rounded-full border border-white/50 px-8 py-3 text-[11px] tracking-[0.24em] text-white transition-all duration-200 hover:-translate-y-0.5 hover:border-white hover:bg-white/5"
+          >
             EXPLORE COLLECTION
-          </button>
+          </Link>
         </motion.div>
 
         <motion.div

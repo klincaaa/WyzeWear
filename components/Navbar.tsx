@@ -1,7 +1,11 @@
 "use client";
 
 import { useEffect, useState, type SVGProps } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useSession, signOut } from "next-auth/react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useCart } from "./CartProvider";
 
 type IconProps = SVGProps<SVGSVGElement>;
 
@@ -82,16 +86,17 @@ const X = (props: IconProps) => (
   </svg>
 );
 
-const navLinks = [
-  "Shop",
-  "New Drops",
-  "Hoodies",
-  "Tracksuits",
-  "Bottoms",
-  "Accessories",
+const navLinks: { label: string; href: string }[] = [
+  { label: "Home", href: "/"},
+  { label: "Shop", href: "/products" },
+  { label: "Hoodies", href: "/products?category=hoodies" },
+  { label: "Bottoms", href: "/products?category=bottoms" },
 ];
 
 export function Navbar() {
+  const { data: session, status } = useSession();
+  const { totalQuantity } = useCart();
+  const router = useRouter();
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
 
@@ -123,23 +128,25 @@ export function Navbar() {
           animate={{ y: 0, opacity: 1 }}
           transition={{ duration: 0.4, ease: "easeOut" }}
         >
-          <button
+          <Link
+            href="/"
             className="flex items-center gap-2 py-3 text-[11px] font-semibold tracking-[0.22em]"
             aria-label="Wyze Wear logo"
           >
             <span className="h-5 w-5 rounded-full border border-zinc-900/40" />
             <span>Wyze Wear</span>
-          </button>
+          </Link>
 
           <div className="hidden items-center gap-8 md:flex">
             {navLinks.map((item) => (
-              <button
-                key={item}
+              <Link
+                key={item.href}
+                href={item.href}
                 className="relative py-4 text-[11px] tracking-[0.22em] text-zinc-700 transition-colors hover:text-black"
               >
-                {item.toUpperCase()}
+                {item.label.toUpperCase()}
                 <span className="absolute inset-x-0 -bottom-1 h-px origin-center scale-x-0 bg-zinc-900 transition-transform duration-200 group-hover:scale-x-100" />
-              </button>
+              </Link>
             ))}
           </div>
 
@@ -147,14 +154,42 @@ export function Navbar() {
             <button aria-label="Search" className="hover:text-black">
               <Search className="h-4 w-4" />
             </button>
-            <button aria-label="Account" className="hover:text-black">
-              <User className="h-4 w-4" />
-            </button>
-            <button aria-label="Cart" className="relative hover:text-black">
+            {status !== "loading" && (
+              session ? (
+                <>
+                  <Link href="/account" aria-label="Moj nalog" className="hover:text-black">
+                    <User className="h-4 w-4" />
+                  </Link>
+                  <button
+                    type="button"
+                    onClick={() => signOut({ callbackUrl: "/" })}
+                    className="text-[10px] font-medium uppercase tracking-wider text-zinc-600 hover:text-black"
+                  >
+                    Odjavi se
+                  </button>
+                </>
+              ) : (
+                <>
+                  <Link href="/login" className="text-[10px] font-medium uppercase tracking-wider text-zinc-600 hover:text-black">
+                    Prijava
+                  </Link>
+                  <Link href="/register" className="text-[10px] font-medium uppercase tracking-wider text-zinc-600 hover:text-black">
+                    Registracija
+                  </Link>
+                </>
+              )
+            )}
+            <button
+              aria-label="Cart"
+              className="relative hover:text-black"
+              onClick={() => router.push("/cart")}
+            >
               <ShoppingBag className="h-4 w-4" />
-              <span className="absolute -right-2 -top-1 inline-flex h-4 min-w-[1rem] items-center justify-center rounded-full bg-zinc-900 px-1 text-[10px] font-semibold text-white">
-                0
-              </span>
+              {totalQuantity > 0 && (
+                <span className="absolute -right-2 -top-1 inline-flex h-4 min-w-[1rem] items-center justify-center rounded-full bg-zinc-900 px-1 text-[10px] font-semibold text-white">
+                  {totalQuantity}
+                </span>
+              )}
             </button>
           </div>
 
@@ -180,20 +215,52 @@ export function Navbar() {
             <div className="mx-auto max-w-6xl px-4 pb-6 pt-3">
               <div className="flex flex-col gap-3 text-[11px] font-medium uppercase tracking-[0.18em] text-zinc-700">
                 {navLinks.map((item) => (
-                  <button
-                    key={item}
+                  <Link
+                    key={item.href}
+                    href={item.href}
                     className="flex items-center justify-between py-2 text-left"
                     onClick={() => setOpen(false)}
                   >
-                    <span>{item}</span>
+                    <span>{item.label}</span>
                     <span className="h-px w-8 bg-zinc-900/30" />
-                  </button>
+                  </Link>
                 ))}
               </div>
-              <div className="mt-4 flex items-center justify-between text-[11px] uppercase tracking-[0.18em] text-zinc-600">
+              <div className="mt-4 flex items-center justify-between gap-4 text-[11px] uppercase tracking-[0.18em] text-zinc-600">
                 <span>Search</span>
-                <span>Account</span>
-                <span>Cart (0)</span>
+                {status !== "loading" && (
+                  session ? (
+                    <>
+                      <Link href="/account" onClick={() => setOpen(false)}>
+                        Moj nalog
+                      </Link>
+                      <button
+                        type="button"
+                        onClick={() => { setOpen(false); signOut({ callbackUrl: "/" }); }}
+                      >
+                        Odjavi se
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <Link href="/login" onClick={() => setOpen(false)}>
+                        Prijava
+                      </Link>
+                      <Link href="/register" onClick={() => setOpen(false)}>
+                        Registracija
+                      </Link>
+                    </>
+                  )
+                )}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setOpen(false);
+                    router.push("/cart");
+                  }}
+                >
+                  Cart ({totalQuantity})
+                </button>
               </div>
             </div>
           </motion.div>
