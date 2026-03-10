@@ -35,7 +35,7 @@ export async function getAllProducts(categorySlug?: string): Promise<DbProduct[]
   const db = getDb();
   const [rows] = categorySlug
     ? await db.query(
-        `
+      `
       SELECT
         p.id,
         p.slug,
@@ -51,10 +51,10 @@ export async function getAllProducts(categorySlug?: string): Promise<DbProduct[]
       GROUP BY p.id, p.slug, p.name, p.price_cents, c.name
       ORDER BY p.id DESC
     `,
-        [categorySlug],
-      )
+      [categorySlug],
+    )
     : await db.query(
-        `
+      `
       SELECT
         p.id,
         p.slug,
@@ -70,7 +70,7 @@ export async function getAllProducts(categorySlug?: string): Promise<DbProduct[]
       GROUP BY p.id, p.slug, p.name, p.price_cents, c.name
       ORDER BY p.id DESC
     `,
-      );
+    );
   return rows as DbProduct[];
 }
 
@@ -278,6 +278,90 @@ export async function getOrdersByUserId(userId: number): Promise<
   );
   const list = orders as DbOrder[];
   const result: (DbOrder & { items: DbOrderItem[] })[] = [];
+  for (const o of list) {
+    const [items] = await db.query(
+      `SELECT oi.product_id, oi.quantity, oi.unit_price_cents, p.name AS product_name
+       FROM order_items oi
+       LEFT JOIN products p ON p.id = oi.product_id
+       WHERE oi.order_id = ?`,
+      [o.id],
+    );
+    result.push({ ...o, items: items as DbOrderItem[] });
+  }
+  return result;
+}
+
+// ——— Admin: dashboard stats ———
+export type AdminStats = {
+  totalOrders: number;
+  ordersThisMonth: number;
+  totalRevenueCents: number;
+  productsCount: number;
+  usersCount: number;
+};
+
+export async function getAdminStats(): Promise<AdminStats> {
+  const db = getDb();
+  const [orderRows] = await db.query(
+    `SELECT
+       COUNT(*) AS total_orders,
+       SUM(CASE WHEN o.created_at >= DATE_FORMAT(NOW(), '%Y-%m-01') THEN 1 ELSE 0 END) AS orders_this_month,
+       COALESCE(SUM(o.total_cents), 0) AS total_revenue_cents
+     FROM orders o`,
+  );
+  const [productRows] = await db.query(
+    "SELECT COUNT(*) AS cnt FROM products WHERE is_active = 1",
+  );
+  const [userRows] = await db.query("SELECT COUNT(*) AS cnt FROM users");
+
+  const os = (orderRows as { total_orders: number; orders_this_month: number; total_revenue_cents: number }[])[0];
+  const pc = (productRows as { cnt: number }[])[0];
+  const uc = (userRows as { cnt: number }[])[0];
+
+  return {
+    totalOrders: Number(os?.total_orders ?? 0),
+    ordersThisMonth: Number(os?.orders_this_month ?? 0),
+    totalRevenueCents: Number(os?.total_revenue_cents ?? 0),
+    productsCount: Number(pc?.cnt ?? 0),
+    usersCount: Number(uc?.cnt ?? 0),
+  };
+}
+
+// ——— Admin: all orders (for tracking new orders) ———
+export type AdminOrder = DbOrder & {
+  address_id: number;
+  full_name: string;
+  street: string;
+  city: string;
+  postal_code: string;
+  country: string;
+  phone: string | null;
+  user_email: string | null;
+  items: DbOrderItem[];
+};
+
+export async function getAllOrdersForAdmin(): Promise<AdminOrder[]> {
+  const db = getDb();
+  const [orders] = await db.query(
+    `SELECT o.id, o.user_id, o.address_id, o.status, o.total_cents, o.currency, o.created_at,
+            a.full_name, a.street, a.city, a.postal_code, a.country, a.phone,
+            u.email AS user_email
+     FROM orders o
+     LEFT JOIN addresses a ON a.id = o.address_id
+     LEFT JOIN users u ON u.id = o.user_id
+     ORDER BY o.created_at DESC`,
+  );
+  const list = orders as (DbOrder & {
+    address_id: number;
+    full_name: string;
+    street: string;
+    city: string;
+    postal_code: string;
+    country: string;
+    phone: string | null;
+    user_email: string | null;
+  })[];
+  const result: AdminOrder[] = [];
   for (const o of list) {
     const [items] = await db.query(
       `SELECT oi.product_id, oi.quantity, oi.unit_price_cents, p.name AS product_name
