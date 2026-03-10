@@ -6,6 +6,8 @@ import { getAdminStats } from "@/lib/db";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 
+export const dynamic = "force-dynamic";
+
 function formatPrice(cents: number) {
   return new Intl.NumberFormat("sr-Latn", {
     style: "currency",

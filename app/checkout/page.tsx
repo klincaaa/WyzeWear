@@ -7,6 +7,8 @@ import { authOptions } from "@/lib/auth";
 import { getAddressesByUserId } from "@/lib/db";
 import { CheckoutClient } from "./CheckoutClient";
 
+export const dynamic = "force-dynamic";
+
 export default async function CheckoutPage() {
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) {

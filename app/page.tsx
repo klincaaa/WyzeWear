@@ -9,6 +9,8 @@ import { Newsletter } from "../components/Newsletter";
 import { Footer } from "../components/Footer";
 import { getAllProducts } from "../lib/db";
 
+export const dynamic = "force-dynamic";
+
 function formatPrice(priceCents: number, currency: string = "EUR") {
   return new Intl.NumberFormat("de-DE", {
     style: "currency",

@@ -3,6 +3,8 @@ import { Footer } from "../../components/Footer";
 import { ProductCard } from "../../components/ProductCard";
 import { getAllProducts } from "../../lib/db";
 
+export const dynamic = "force-dynamic";
+
 function formatPrice(priceCents: number, currency: string = "EUR") {
   return new Intl.NumberFormat("de-DE", {
     style: "currency",
