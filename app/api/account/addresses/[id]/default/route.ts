@@ -1,7 +1,7 @@
 import { getServerSession } from "next-auth";
 import { NextResponse } from "next/server";
 import { authOptions } from "@/lib/auth";
-import { setDefaultAddress } from "@/lib/db";
+import { setDefaultAddress } from "@/lib/db-queries";
 
 export async function PATCH(
   _request: Request,

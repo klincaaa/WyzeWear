@@ -1,10 +1,11 @@
+import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { getServerSession } from "next-auth";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { authOptions } from "@/lib/auth";
-import { getAddressesByUserId } from "@/lib/db";
+import { getBaseUrl } from "@/lib/url";
 import { CheckoutClient } from "./CheckoutClient";
 
 export const dynamic = "force-dynamic";
@@ -19,8 +20,16 @@ export default async function CheckoutPage() {
     redirect("/login?callbackUrl=/checkout");
   }
 
-  const addresses = await getAddressesByUserId(userId);
-  const defaultAddress = addresses[0];
+  const base = await getBaseUrl();
+  const cookieStore = await cookies();
+  const res = await fetch(`${base}/api/account`, {
+    cache: "no-store",
+    headers: { Cookie: cookieStore.toString() },
+  });
+  if (res.status === 401) redirect("/login?callbackUrl=/checkout");
+  if (!res.ok) throw new Error("Failed to load account");
+  const { addresses } = await res.json();
+  const defaultAddress = addresses?.[0];
 
   return (
     <div className="min-h-screen bg-white text-zinc-900">

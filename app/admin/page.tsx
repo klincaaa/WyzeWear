@@ -1,10 +1,12 @@
+import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import { getAdminStats } from "@/lib/db";
+import { getBaseUrl } from "@/lib/url";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
+import type { AdminStats } from "@/lib/db";
 
 export const dynamic = "force-dynamic";
 
@@ -43,7 +45,14 @@ export default async function AdminPage() {
     );
   }
 
-  const stats = await getAdminStats();
+  const base = await getBaseUrl();
+  const cookieStore = await cookies();
+  const res = await fetch(`${base}/api/admin/stats`, {
+    cache: "no-store",
+    headers: { Cookie: cookieStore.toString() },
+  });
+  if (!res.ok) throw new Error("Failed to load admin stats");
+  const stats = (await res.json()) as AdminStats;
 
   const cards = [
     {

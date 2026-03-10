@@ -1,7 +1,9 @@
+import { cookies } from "next/headers";
 import { Navbar } from "../../components/Navbar";
 import { Footer } from "../../components/Footer";
 import { ProductCard } from "../../components/ProductCard";
-import { getAllProducts } from "../../lib/db";
+import { getBaseUrl } from "../../lib/url";
+import type { DbProduct } from "../../lib/db";
 
 export const dynamic = "force-dynamic";
 
@@ -21,7 +23,15 @@ export default async function ProductsPage({
   searchParams: Promise<SearchParams>;
 }) {
   const { category } = await searchParams;
-  const products = await getAllProducts(category ?? undefined);
+  const base = await getBaseUrl();
+  const cookieStore = await cookies();
+  const url = category ? `${base}/api/products?category=${category}` : `${base}/api/products`;
+  const res = await fetch(url, {
+    cache: "no-store",
+    headers: { Cookie: cookieStore.toString() },
+  });
+  if (!res.ok) throw new Error("Failed to load products");
+  const products = (await res.json()) as DbProduct[];
   const categoryLabel =
     category === "hoodies"
       ? "Hoodies"

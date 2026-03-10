@@ -1,9 +1,11 @@
+import { cookies } from "next/headers";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Navbar } from "../../../components/Navbar";
 import { Footer } from "../../../components/Footer";
-import { getProductBySlug } from "../../../lib/db";
+import { getBaseUrl } from "../../../lib/url";
+import type { DbProductDetail } from "../../../lib/db";
 import { ProductDetailClient } from "./ProductDetailClient";
 
 export const dynamic = "force-dynamic";
@@ -22,7 +24,15 @@ export default async function ProductDetailPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const product = await getProductBySlug(slug);
+  const base = await getBaseUrl();
+  const cookieStore = await cookies();
+  const res = await fetch(`${base}/api/products/${slug}`, {
+    cache: "no-store",
+    headers: { Cookie: cookieStore.toString() },
+  });
+  if (res.status === 404) notFound();
+  if (!res.ok) throw new Error("Failed to load product");
+  const product = (await res.json()) as DbProductDetail;
   if (!product) notFound();
 
   const mainImage = product.images[0]?.image_url ?? "";

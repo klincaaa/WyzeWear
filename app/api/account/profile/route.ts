@@ -1,7 +1,7 @@
 import { getServerSession } from "next-auth";
 import { NextResponse } from "next/server";
 import { authOptions } from "@/lib/auth";
-import { updateUser } from "@/lib/db";
+import { updateUser } from "@/lib/db-queries";
 
 export async function PATCH(request: Request) {
   const session = await getServerSession(authOptions);

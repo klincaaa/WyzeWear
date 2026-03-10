@@ -1,10 +1,11 @@
+import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { getServerSession } from "next-auth";
 import Link from "next/link";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { authOptions } from "@/lib/auth";
-import { getUserById, getAddressesByUserId, getOrdersByUserId } from "@/lib/db";
+import { getBaseUrl } from "@/lib/url";
 import { AccountProfile } from "./AccountProfile";
 import { AccountAddresses } from "./AccountAddresses";
 import { AccountOrders } from "./AccountOrders";
@@ -21,15 +22,16 @@ export default async function AccountPage() {
     redirect("/login?callbackUrl=/account");
   }
 
-  const [user, addresses, orders] = await Promise.all([
-    getUserById(userId),
-    getAddressesByUserId(userId),
-    getOrdersByUserId(userId),
-  ]);
-
-  if (!user) {
-    redirect("/login?callbackUrl=/account");
-  }
+  const base = await getBaseUrl();
+  const cookieStore = await cookies();
+  const res = await fetch(`${base}/api/account`, {
+    cache: "no-store",
+    headers: { Cookie: cookieStore.toString() },
+  });
+  if (res.status === 401) redirect("/login?callbackUrl=/account");
+  if (!res.ok) throw new Error("Failed to load account");
+  const { user, addresses, orders } = await res.json();
+  if (!user) redirect("/login?callbackUrl=/account");
 
   return (
     <div className="min-h-screen bg-white text-zinc-900">

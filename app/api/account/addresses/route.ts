@@ -1,7 +1,7 @@
 import { getServerSession } from "next-auth";
 import { NextResponse } from "next/server";
 import { authOptions } from "@/lib/auth";
-import { createAddress } from "@/lib/db";
+import { createAddress } from "@/lib/db-queries";
 
 export async function POST(request: Request) {
   const session = await getServerSession(authOptions);
