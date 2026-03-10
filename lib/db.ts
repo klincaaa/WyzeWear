@@ -11,11 +11,15 @@ const connectionConfig = {
 
 let pool: mysql.Pool | null = null;
 
+/** Keep connectionLimit low so build (multiple workers) doesn't exceed DB max_connections. */
+const CONNECTION_LIMIT = 3;
+
 export function getDb() {
   if (!pool) {
     pool = mysql.createPool({
       ...connectionConfig,
-      connectionLimit: 10,
+      connectionLimit: CONNECTION_LIMIT,
+      queueLimit: 0,
     });
   }
   return pool;
