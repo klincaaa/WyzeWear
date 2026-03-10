@@ -11,8 +11,11 @@ const connectionConfig = {
 
 let pool: mysql.Pool | null = null;
 
-/** Keep connectionLimit low so build (multiple workers) doesn't exceed DB max_connections. */
-const CONNECTION_LIMIT = 3;
+/**
+ * One connection per Node process. On Vercel each serverless instance is a process;
+ * many instances = many processes, so we keep 1 per process to avoid exceeding DB max_connections.
+ */
+const CONNECTION_LIMIT = 1;
 
 export function getDb() {
   if (!pool) {
@@ -20,6 +23,8 @@ export function getDb() {
       ...connectionConfig,
       connectionLimit: CONNECTION_LIMIT,
       queueLimit: 0,
+      enableKeepAlive: true,
+      keepAliveInitialDelay: 10000,
     });
   }
   return pool;
