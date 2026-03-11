@@ -157,7 +157,11 @@ export function Navbar() {
             {status !== "loading" && (
               session ? (
                 <>
-                  <Link href="/account" aria-label="Moj nalog" className="hover:text-black">
+                  <Link
+                    href="/account"
+                    aria-label="My account"
+                    className="hover:text-black"
+                  >
                     <User className="h-4 w-4" />
                   </Link>
                   <button
@@ -165,16 +169,22 @@ export function Navbar() {
                     onClick={() => signOut({ callbackUrl: "/" })}
                     className="text-[10px] font-medium uppercase tracking-wider text-zinc-600 hover:text-black"
                   >
-                    Odjavi se
+                    Sign out
                   </button>
                 </>
               ) : (
                 <>
-                  <Link href="/login" className="text-[10px] font-medium uppercase tracking-wider text-zinc-600 hover:text-black">
-                    Prijava
+                  <Link
+                    href="/login"
+                    className="text-[10px] font-medium uppercase tracking-wider text-zinc-600 hover:text-black"
+                  >
+                    Log in
                   </Link>
-                  <Link href="/register" className="text-[10px] font-medium uppercase tracking-wider text-zinc-600 hover:text-black">
-                    Registracija
+                  <Link
+                    href="/register"
+                    className="text-[10px] font-medium uppercase tracking-wider text-zinc-600 hover:text-black"
+                  >
+                    Sign up
                   </Link>
                 </>
               )
@@ -231,23 +241,35 @@ export function Navbar() {
                 {status !== "loading" && (
                   session ? (
                     <>
-                      <Link href="/account" onClick={() => setOpen(false)}>
-                        Moj nalog
+                      <Link
+                        href="/account"
+                        onClick={() => setOpen(false)}
+                      >
+                        My account
                       </Link>
                       <button
                         type="button"
-                        onClick={() => { setOpen(false); signOut({ callbackUrl: "/" }); }}
+                        onClick={() => {
+                          setOpen(false);
+                          signOut({ callbackUrl: "/" });
+                        }}
                       >
-                        Odjavi se
+                        Sign out
                       </button>
                     </>
                   ) : (
                     <>
-                      <Link href="/login" onClick={() => setOpen(false)}>
-                        Prijava
+                      <Link
+                        href="/login"
+                        onClick={() => setOpen(false)}
+                      >
+                        Log in
                       </Link>
-                      <Link href="/register" onClick={() => setOpen(false)}>
-                        Registracija
+                      <Link
+                        href="/register"
+                        onClick={() => setOpen(false)}
+                      >
+                        Sign up
                       </Link>
                     </>
                   )
